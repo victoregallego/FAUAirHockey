@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>FAU Air Hockey</title>
+
+    <meta charset="utf-8"/>
+
+    <style>
+
+        * {
+            user-select: none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-drag: none;
+        }
+
+        #canvas-wrap{
+            position:relative;
+            cursor: default;
+
+        }
+
+        #glcanvas {
+            background-image: url(textures/air_hockey_table.png);
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        .scorep1 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #000080;
+            font-size: 23pt;
+            font-family: Helvetica, sans-serif;
+            text-shadow: 2px 2px #000000;
+            pointer-events: none;
+        }
+
+        .scorep2 {
+            position: absolute;
+            top: 0;
+            left: 550px;
+            color: #800000;
+            font-size: 23pt;
+            font-family: Helvetica, sans-serif;
+            text-shadow: 2px 2px #000000;
+            pointer-events: none;
+
+        }
+
+        .gameover {
+            position: absolute;
+            top: 100px;
+            left: 200px;
+            color: darkorange;
+            font-family: Helvetica, sans-serif;
+            font-size: 45pt;
+            text-shadow: 2px 2px #000000;
+            cursor: default;
+            display: none;
+        }
+
+        #playagain{
+            font-size: 20pt;
+            cursor: pointer;
+            position: relative;
+            left: 120px;
+            top: 0px;
+        }
+        #playagain:hover {
+            color: GOLD;
+        }
+
+        #playername{
+            color: darkred;
+            text-shadow: 2px 2px silver;
+        }
+
+
+    </style>
+
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+        attribute vec4 aVertexColor; //added in sample 3
+        attribute vec2 aTexCoord; // added for textures
+
+
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+        uniform vec2 uScale;
+
+        varying vec4 vColor; //added in sample 3
+        varying vec2 vTexCoord; // added for textures
+
+        varying vec3 vLighting; // for light effects
+
+        void main(void) {
+
+        vec3 ambientLight = vec3(1.0, 1.0, 1.0);
+
+        gl_Position = uPMatrix * vec4(aVertexPosition,1.0);
+
+        vColor = aVertexColor;
+
+        vTexCoord = aTexCoord; // added for Textures
+
+        // Apply a lighting effect
+        vLighting = ambientLight;
+
+        }
+    </script>
+
+    <!-- Fragment shader program -->
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+        precision mediump float;
+
+        uniform sampler2D uSampler;
+
+        varying vec4 vColor;
+        varying vec2 vTexCoord;
+
+        varying vec3 vLighting;
+
+        void main(void) {
+
+        vec4 texColor = texture2D(uSampler, vec2(vTexCoord.s, vTexCoord.t));
+
+        gl_FragColor = vec4(texColor.rgb * vLighting, texColor.a);
+
+        //gl_FragColor = vec4(1.0,1.0,1.0,1.0); //all white
+        }
+    </script>
+
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/Game.js"></script>
+    <script type="text/javascript" src="js/Sprite.js"></script>
+    <script type="text/javascript" src="libs/gl-matrix.js"></script>
+
+
+</head>
+<body onload="main()">
+<div id = "canvas-wrap">
+    <canvas id="glcanvas" width="768" height="432">
+        Your browser doesn't appear to support the HTML5
+        <code>
+            &lt;canvas&gt;
+        </code>
+        element.
+    </canvas>
+
+
+    <div class="scorep1">P1 SCORE: <span id="scorep1">0</span></div>
+
+    <div class="scorep2">P2 SCORE: <span id="scorep2">0</span></div>
+
+    <span class="gameover" id="gameover">GAME OVER</br>
+        <span id="playername">Player 2 Wins</span></br>
+        <span id="playagain" onclick="restart()">Play Again</span></span>
+
+
+</div>
+
+</body>
+</html>
